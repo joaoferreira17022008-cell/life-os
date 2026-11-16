@@ -540,7 +540,19 @@ th {
     width: 100%;
   }
 }
+@media (min-width: 651px) {
+  .app-shell {
+    min-height: calc(100vh - 58px);
+    align-items: stretch;
+  }
 
+  .sidebar {
+    min-height: calc(100vh - 58px);
+    height: 100%;
+    align-self: stretch;
+    border-right: 1px solid var(--line);
+  }
+}
 
 </style>
 </head>
