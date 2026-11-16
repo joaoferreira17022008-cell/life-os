@@ -1297,10 +1297,21 @@ function render(){
       <div class="grid">
         <section class="card">
           <h2>Upcoming exams</h2>
-          ${data.exams.length
-            ?data.exams.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5).map(x=>listItem(x,"exams")).join("")
-            :'<div class="empty">No exams added yet.</div>'}
-        </section>
+            ${data.exams.length
+              ?data.exams.slice()
+                .sort((a,b)=>a.date.localeCompare(b.date))
+                .slice(0,5)
+                .map(x=>`
+                  <div class="item">
+                    <div>
+                      <strong>${esc(x.title)}</strong>
+                      <p>${esc(x.subject||"")}</p>
+                      <p>${esc(x.date||"")}</p>
+                    </div>
+                  </div>
+                `).join("")
+              :'<div class="empty">No exams added yet.</div>'}
+            </section>
         <section class="card">
           <h2>Study priorities</h2>
           ${data.tasks.filter(t=>!t.done).slice(0,6).map(t=>`
