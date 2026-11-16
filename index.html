@@ -30,7 +30,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 /* LIFE OS Supabase configuration */
 const SUPABASE_URL = "https://ehqtqkpgawiwnvcbqyqe.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4sjEIh5OY_PokLfbfupt_w_cJqhenyY";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const subjects=["CDI11 – Cálculo Diferencial e Integral I","QG3 – Química Geral","AL6 – Álgebra Linear","SD2 – Sistemas Digitais","IEECom – Introdução à Engenharia Eletrotécnica e de Computadores","Comunicação e Ciência"];
