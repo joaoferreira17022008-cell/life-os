@@ -1013,14 +1013,23 @@ async function loadCloudData(){
   }
 
   if(row?.data){
+    // Load this user's existing cloud data
     data={...defaultData,...row.data};
-    normalizeIds();
-    saveLocal();
   }else{
-    normalizeIds();
-    saveLocal();
+    // Give a new account a fresh workspace
+    data={
+      ...defaultData,
+      tasks:[],
+      exams:[],
+      events:[],
+      weeklyTimetable:null
+    };
+
     await pushCloudData();
   }
+
+  normalizeIds();
+  saveLocal();
 }
 
 async function pushCloudData(){
