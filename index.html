@@ -848,7 +848,51 @@ function academicWeek(d){
   let m=new Date(d.getFullYear(),d.getMonth(),d.getDate());
   return Math.floor((m-start)/604800000)+1;
 }
+function getLocalDate(dateString){
+  if(!dateString)return null;
 
+  const [year,month,day]=dateString.split("-").map(Number);
+  return new Date(year,month-1,day);
+}
+
+function getDatedItemsForDay(selectedDay,selectedWeek){
+  const items=[];
+
+  for(const event of data.events){
+    const date=getLocalDate(event.date);
+
+    if(date && DAYS[date.getDay()===0?6:date.getDay()-1]===selectedDay
+       && academicWeek(date)===selectedWeek){
+      items.push({
+        title:event.title,
+        type:"Event",
+        start:event.start||"00:00",
+        end:event.end||"",
+        room:"",
+        notes:event.notes||""
+      });
+    }
+  }
+
+  for(const exam of data.exams){
+    const date=getLocalDate(exam.date);
+
+    if(date && DAYS[date.getDay()===0?6:date.getDay()-1]===selectedDay
+       && academicWeek(date)===selectedWeek){
+      items.push({
+        title:exam.title,
+        type:"Exam",
+        start:"00:00",
+        end:"",
+        room:exam.subject||"",
+        notes:exam.topics||""
+      });
+    }
+  }
+
+  return items;
+}
+  
 function weeksMatch(rule,w){
   if(rule==="Every week")return true;
   return rule.split(",").some(part=>{
@@ -1271,8 +1315,22 @@ function render(){
   }
 
   if(page==="Timetable"){
-    let sessions=getSchedule().filter(x=>x[0]===day&&weeksMatch(x[5],week));
+    let sessions=getSchedule()
+  .filter(x=>x[0]===day&&weeksMatch(x[5],week))
+  .map(x=>({
+    title:x[3],
+    start:x[1],
+    end:x[2],
+    room:x[4],
+    type:"Class"
+  }));
 
+let datedItems=getDatedItemsForDay(day,week);
+
+let allSessions=[
+  ...sessions,
+  ...datedItems
+].sort((a,b)=>a.start.localeCompare(b.start));
     html=`
       <h1>Weekly timetable</h1>
       <div class="sub">Semester 1 · Week 1 began 7 September 2026. Current academic week: ${week}.</div>
@@ -1286,16 +1344,24 @@ function render(){
           ${DAYS.map(d=>`<button data-day="${d}" class="${day===d?'selected':''}">${d.slice(0,3)}</button>`).join("")}
         </div>
         <h2>${day}</h2>
-        ${sessions.length
-          ?sessions.map(x=>`
-            <div class="item">
-              <div>
-                <strong>${x[3]}</strong>
-                <p>${x[1]}–${x[2]} · ${x[4]||"Room not specified"}</p>
-              </div>
-              <span class="tag">Class</span>
-            </div>`).join("")
-          :'<div class="empty">No classes scheduled.</div>'}
+          ${allSessions.length
+            ?allSessions.map(x=>`
+              <div class="item">
+                <div>
+                  <strong>${esc(x.title)}</strong>
+                  <p>
+                    ${x.type==="Exam"?"Exam date":
+                      x.start==="00:00"&&!x.end?"All day":
+                      esc(x.start)+(x.end?"–"+esc(x.end):"")}
+                    ${x.room?" · "+esc(x.room):""}
+                  </p>
+                  ${x.notes?`<p>${esc(x.notes)}</p>`:""}
+                </div>
+                <span class="tag ${x.type==="Exam"?"high":x.type==="Event"?"medium":""}">
+                  ${x.type}
+                </span>
+              </div>`).join("")
+            :'<div class="empty">Nothing scheduled for this day.</div>'}
       </section>
       <section class="card">
         <h2>Weekly class list</h2>
