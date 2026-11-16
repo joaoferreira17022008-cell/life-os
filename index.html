@@ -550,6 +550,52 @@ th {
   }
 }
 
+/* Edit and delete controls */
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+button.edit-button {
+  color: #c5b6ff;
+  background: #272332;
+  border-color: #393149;
+}
+
+button.edit-button:hover {
+  background: #393149;
+}
+
+.edit-form-card {
+  margin: 12px 0 25px;
+  border-color: var(--purple);
+}
+
+.edit-form-card h2 {
+  margin-bottom: 14px;
+}
+
+.class-editor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #202129;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  margin-bottom: 8px;
+}
+
+@media(max-width: 440px) {
+  .class-editor-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 </style>
 </head>
 
@@ -640,7 +686,131 @@ const schedule=[
 ["Friday","17:00","19:00","SD2 – Sistemas Digitais (T)","GA4","1-6,9,15"]
 ];
 
-const defaultData={tasks:[],exams:[],events:[]};
+function getSchedule(){
+  return Array.isArray(data.weeklyTimetable)
+    ? data.weeklyTimetable
+    : schedule;
+}
+
+function scheduleEditor(){
+  return `
+    <section class="card">
+      <div class="row">
+        <h2>Edit weekly timetable</h2>
+        <button class="primary" id="addClass">＋ Add class</button>
+      </div>
+
+      <div id="classFormContainer"></div>
+
+      ${getSchedule().map((x,i)=>`
+        <div class="class-editor-row">
+          <div>
+            <strong>${esc(x[3])}</strong>
+            <p class="muted">${esc(x[0])} · ${esc(x[1])}–${esc(x[2])} · ${esc(x[4]||"No room")}</p>
+            <p class="muted">Weeks: ${esc(x[5])}</p>
+          </div>
+          <div class="item-actions">
+            <button class="edit-button" data-edit-class="${i}">Edit</button>
+            <button class="danger" data-delete-class="${i}">×</button>
+          </div>
+        </div>
+      `).join("")}
+    </section>`;
+}
+
+function classEditForm(index=null){
+  const existing=index===null
+    ? ["Monday","09:00","10:00","","","Every week"]
+    : getSchedule()[index];
+
+  return `
+    <section class="card edit-form-card">
+      <h2>${index===null?"Add class":"Edit class"}</h2>
+
+      <form id="classForm">
+        <input type="hidden" name="index" value="${index===null?"":index}">
+
+        <label>Day
+          <select name="day">
+            ${DAYS.map(d=>`<option ${existing[0]===d?"selected":""}>${d}</option>`).join("")}
+          </select>
+        </label>
+
+        <label>Class name
+          <input name="subject" value="${esc(existing[3])}" required>
+        </label>
+
+        <label>Start time
+          <input name="start" type="time" value="${esc(existing[1])}" required>
+        </label>
+
+        <label>End time
+          <input name="end" type="time" value="${esc(existing[2])}" required>
+        </label>
+
+        <label>Room
+          <input name="room" value="${esc(existing[4])}">
+        </label>
+
+        <label>Semester weeks
+          <input name="weeks" value="${esc(existing[5])}" required>
+        </label>
+
+        <p class="muted full">
+          Examples: Every week, 1-7, 1,3,5, or 1-4,6-10
+        </p>
+
+        <div class="actions">
+          <button class="primary">Save class</button>
+          <button type="button" id="cancelClass">Cancel</button>
+        </div>
+      </form>
+    </section>`;
+}
+
+function wireClassForm(){
+  const form=document.querySelector("#classForm");
+  if(!form)return;
+
+  form.onsubmit=e=>{
+    e.preventDefault();
+
+    const o=Object.fromEntries(new FormData(form));
+    const index=o.index;
+
+    const entry=[
+      o.day,
+      o.start,
+      o.end,
+      o.subject,
+      o.room,
+      o.weeks
+    ];
+
+    const updated=getSchedule().map(x=>[...x]);
+
+    if(index===""){
+      updated.push(entry);
+    }else{
+      updated[Number(index)]=entry;
+    }
+
+    data.weeklyTimetable=updated;
+    save();
+    render();
+  };
+
+  document.querySelector("#cancelClass").onclick=()=>{
+    render();
+  };
+}
+
+const defaultData={
+  tasks:[],
+  exams:[],
+  events:[],
+  weeklyTimetable:null
+};
 
 let data=loadLocal();
 let page="Home";
@@ -928,6 +1098,7 @@ function remove(kind,id){
   render();
 }
 
+
 function listItem(x,kind){
   return `
     <div class="item">
@@ -937,12 +1108,132 @@ function listItem(x,kind){
         ${x.notes?`<p>${esc(x.notes)}</p>`:""}
         ${x.topics?`<p>Topics: ${esc(x.topics)}</p>`:""}
       </div>
-      <div>
-        ${x.priority?`<span class="tag ${x.priority.toLowerCase()}">${x.priority}</span>`:""}
+      <div class="item-actions">
+        ${x.priority?`<span class="tag ${x.priority.toLowerCase()}">${esc(x.priority)}</span>`:""}
+        <button class="edit-button" data-edit="${kind}:${x.id}">Edit</button>
         <button class="danger" data-del="${kind}:${x.id}" aria-label="Delete ${esc(x.title)}">×</button>
       </div>
     </div>`;
 }
+
+function editForm(kind,x){
+  const value = name => esc(x[name] || "");
+  const selected = (name,v) =>
+    x[name] === v ? "selected" : "";
+
+  let fields = "";
+
+  if(kind==="tasks"){
+    fields = `
+      <label>Subject
+        <select name="subject">
+          ${subjects.map(s=>`<option ${selected("subject",s)}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Date
+        <input name="date" type="date" value="${value("date")}">
+      </label>
+      <label>Preferred day
+        <select name="day">
+          <option value="">Unscheduled</option>
+          ${DAYS.map(d=>`<option ${selected("day",d)}>${d}</option>`).join("")}
+        </select>
+      </label>
+      <label>Duration (minutes)
+        <input name="duration" type="number" value="${value("duration")||60}">
+      </label>
+      <label>Priority
+        <select name="priority">
+          ${["High","Medium","Low"].map(p=>`<option ${selected("priority",p)}>${p}</option>`).join("")}
+        </select>
+      </label>`;
+  }
+
+  if(kind==="events"){
+    fields = `
+      <label>Date
+        <input name="date" type="date" value="${value("date")}" required>
+      </label>
+      <label>Start
+        <input name="start" type="time" value="${value("start")}">
+      </label>
+      <label>End
+        <input name="end" type="time" value="${value("end")}">
+      </label>`;
+  }
+
+  if(kind==="exams"){
+    fields = `
+      <label>Subject
+        <select name="subject">
+          ${subjects.map(s=>`<option ${selected("subject",s)}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Date
+        <input name="date" type="date" value="${value("date")}" required>
+      </label>
+      <label>Priority
+        <select name="priority">
+          ${["High","Medium","Low"].map(p=>`<option ${selected("priority",p)}>${p}</option>`).join("")}
+        </select>
+      </label>
+      <label class="full">Topics to revise
+        <textarea name="topics">${value("topics")}</textarea>
+      </label>`;
+  }
+
+  return `
+    <section class="card edit-form-card">
+      <h2>Edit ${kind==="tasks"?"Study task":kind==="exams"?"Exam":"Event"}</h2>
+      <form class="edit-item-form">
+        <input type="hidden" name="kind" value="${kind}">
+        <input type="hidden" name="id" value="${esc(x.id)}">
+
+        <label class="full">Title
+          <input name="title" value="${value("title")}" required>
+        </label>
+
+        ${fields}
+
+        <label class="full">Notes
+          <textarea name="notes">${value("notes")}</textarea>
+        </label>
+
+        <div class="actions">
+          <button class="primary">Save changes</button>
+          <button type="button" class="cancel-edit">Cancel</button>
+        </div>
+      </form>
+    </section>`;
+}
+
+function wireEditForm(){
+  document.querySelectorAll(".edit-item-form").forEach(form=>{
+    form.onsubmit=e=>{
+      e.preventDefault();
+
+      const o=Object.fromEntries(new FormData(form));
+      const kind=o.kind;
+      const id=o.id;
+
+      delete o.kind;
+      delete o.id;
+
+      const item=data[kind].find(x=>x.id===id);
+
+      if(item){
+        Object.assign(item,o);
+        save();
+        render();
+      }
+    };
+
+    form.querySelector(".cancel-edit").onclick=()=>{
+      render();
+    };
+  });
+}
+
 
 function render(){
   nav();
@@ -980,7 +1271,7 @@ function render(){
   }
 
   if(page==="Timetable"){
-    let sessions=schedule.filter(x=>x[0]===day&&weeksMatch(x[5],week));
+    let sessions=getSchedule().filter(x=>x[0]===day&&weeksMatch(x[5],week));
 
     html=`
       <h1>Weekly timetable</h1>
@@ -1011,10 +1302,11 @@ function render(){
         <p class="muted">Classes automatically appear only in their specified semester weeks.</p>
         <table>
           <tr><th>Day</th><th>Time</th><th>Class</th><th>Room</th></tr>
-          ${schedule.filter(x=>weeksMatch(x[5],week)).map(x=>`
+          ${getSchedule().filter(x=>weeksMatch(x[5],week)).map(x=>`
             <tr><td>${x[0]}</td><td>${x[1]}–${x[2]}</td><td>${x[3]}</td><td>${x[4]||"—"}</td></tr>`).join("")}
         </table>
-      </section>`;
+      </section>
+      ${scheduleEditor()}`;
   }
 
   if(page==="Study planner"){
@@ -1031,7 +1323,10 @@ function render(){
                 <span><input type="checkbox" data-task="${t.id}" ${t.done?"checked":""}> ${esc(t.title)}</span>
                 <p>${esc(t.subject||"")} · ${t.day||t.date||"Unscheduled"} · ${t.duration||60} min</p>
               </label>
-              <button class="danger" data-del="tasks:${t.id}">×</button>
+              <div class="item-actions">
+                  <button class="edit-button" data-edit="tasks:${t.id}">Edit</button>
+                  <button class="danger" data-del="tasks:${t.id}">×</button>
+                </div>
             </div>`).join("")
           :'<div class="empty">Add your first study task.</div>'}
       </section>
@@ -1089,7 +1384,44 @@ function render(){
   }
 
   document.querySelector("#app").innerHTML=html;
+  
+  const addClassButton=document.querySelector("#addClass");
 
+  if(addClassButton){
+    addClassButton.onclick=()=>{
+      document.querySelector("#classFormContainer").innerHTML=
+        classEditForm();
+
+      wireClassForm();
+    };
+  }
+
+  document.querySelectorAll("[data-edit-class]").forEach(b=>{
+    b.onclick=()=>{
+      const index=Number(b.dataset.editClass);
+
+      document.querySelector("#classFormContainer").innerHTML=
+        classEditForm(index);
+
+      wireClassForm();
+    };
+  });
+
+  document.querySelectorAll("[data-delete-class]").forEach(b=>{
+    b.onclick=()=>{
+      if(!confirm("Delete this class from your timetable?"))return;
+
+      const index=Number(b.dataset.deleteClass);
+
+      data.weeklyTimetable=getSchedule()
+        .filter((x,i)=>i!==index)
+        .map(x=>[...x]);
+
+      save();
+      render();
+    };
+  });
+  
   document.querySelectorAll("[data-page]").forEach(b=>{
     b.onclick=()=>go(b.dataset.page);
   });
@@ -1102,6 +1434,24 @@ function render(){
     };
   });
 
+  
+document.querySelectorAll("[data-edit]").forEach(b=>{
+  b.onclick=()=>{
+    const [kind,id]=b.dataset.edit.split(":");
+    const item=data[kind]?.find(x=>x.id===id);
+
+    if(!item)return;
+
+    document.querySelectorAll(".edit-form-card").forEach(f=>f.remove());
+
+    b.closest(".item").insertAdjacentHTML(
+      "afterend",
+      editForm(kind,item)
+    );
+
+    wireEditForm();
+  };
+});
 
   document.querySelectorAll("[data-del]").forEach(b=>{
     b.onclick=()=>{
