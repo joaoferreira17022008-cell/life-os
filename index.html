@@ -249,7 +249,13 @@ async function authSubmit(e){
   setStatus("Authenticating…");
 
   let result=mode==="signup"
-    ? await supabaseClient.auth.signUp({email,password})
+    ? await supabaseClient.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: "https://joaoferreira17022008-cell.github.io/life-os/"
+  }
+})
     : await supabaseClient.auth.signInWithPassword({email,password});
 
   if(result.error){
