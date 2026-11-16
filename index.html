@@ -120,91 +120,111 @@ header.topbar {
 
 /* Main application layout */
 
+
+/* Compact icon sidebar */
+
 .app-shell {
-  display: grid;
-  grid-template-columns: 235px minmax(0, 1fr);
-  min-height: calc(100vh - 58px);
+  grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .sidebar {
   background: var(--sidebar);
   border-right: 1px solid var(--line);
-  padding: 18px 12px;
+  padding: 18px 10px;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .workspace-switch {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line);
   background: #17181e;
-  border-radius: 8px;
-  padding: 11px;
-  margin-bottom: 27px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  font-size: 21px;
 }
 
-.workspace-switch small {
-  display: block;
-  color: var(--muted);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  margin-bottom: 4px;
-}
-
-.workspace-switch strong {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.nav-label {
-  color: #747582;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  padding: 0 11px;
-  margin-bottom: 9px;
+.workspace-switch small,
+.workspace-switch strong,
+.nav-label,
+.sidebar-bottom {
+  display: none;
 }
 
 nav {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
 }
 
-nav button {
-  width: 100%;
-  text-align: left;
+#nav button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   background: transparent;
   border: 1px solid transparent;
+  border-radius: 9px;
   color: #a4a5b0;
-  padding: 9px 11px;
-  border-radius: 6px;
-  font-size: 13px;
+  font-size: 22px;
+  text-align: center;
 }
 
-nav button:hover {
+#nav button:hover {
   background: #1b1c23;
   color: var(--text);
 }
 
-nav button.active {
+#nav button.active {
   background: #272332;
   border-color: #393149;
   color: #c5b6ff;
 }
 
-.sidebar-bottom {
-  margin-top: auto;
-  padding: 15px 10px 3px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 11px;
+/* Hover tooltip */
+
+#nav button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 59px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #292832;
+  color: white;
+  border: 1px solid #454451;
+  border-radius: 6px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 5px 18px #0008;
+}
+
+#nav button:hover::after,
+#nav button:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 .content-area {
   min-width: 0;
   padding: 30px 36px;
 }
+
 
 main {
   max-width: 1150px;
@@ -333,7 +353,16 @@ h2 {
 }
 
 /* Forms */
+/* Create forms and list spacing */
 
+.create-form-card {
+  margin-top: 22px;
+  margin-bottom: 28px;
+}
+
+#create {
+  margin-top: 8px;
+}
 form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -509,10 +538,9 @@ th {
   <div class="app-shell">
 
     <aside class="sidebar">
-      <div class="workspace-switch">
-        <small>Workspace</small>
-        <strong>◈ Personal LIFE OS</strong>
-      </div>
+        <div class="workspace-switch" title="Personal LIFE OS">
+          ◈
+        </div>
 
       <div class="nav-label">WORKSPACE</div>
       <nav id="nav"></nav>
@@ -781,18 +809,46 @@ function go(p){
   render();
 }
 
+
 function nav(){
-  let html=navItems.map(p=>
-    `<button class="${page===p?'active':''}" data-page="${p}">${p}</button>`
+  const icons = {
+    "Home": "⌂",
+    "Timetable": "▦",
+    "Study planner": "✎",
+    "Tests & exams": "◷",
+    "Calendar": "▣",
+    "Events": "◈",
+    "Settings": "⚙"
+  };
+
+  const desktopHtml = navItems.map(p =>
+    `<button
+      class="${page===p?'active':''}"
+      data-page="${p}"
+      data-tooltip="${p}"
+      title="${p}"
+      aria-label="${p}">
+      ${icons[p]}
+    </button>`
   ).join("");
 
-  document.querySelector("#nav").innerHTML=html;
-  document.querySelector("#mobileNav").innerHTML=html;
+  const mobileHtml = navItems.map(p =>
+    `<button
+      class="${page===p?'active':''}"
+      data-page="${p}"
+      title="${p}">
+      ${icons[p]} ${p}
+    </button>`
+  ).join("");
 
-  document.querySelectorAll("[data-page]").forEach(b=>{
-    b.onclick=()=>go(b.dataset.page);
+  document.querySelector("#nav").innerHTML = desktopHtml;
+  document.querySelector("#mobileNav").innerHTML = mobileHtml;
+
+  document.querySelectorAll("[data-page]").forEach(b => {
+    b.onclick = () => go(b.dataset.page);
   });
 }
+
 
 function addForm(kind){
   let fields=kind==="Study"
@@ -811,7 +867,7 @@ function addForm(kind){
        <label>End<input name="end" type="time"></label>`;
 
   return `
-    <section class="card">
+    <section class="card create-form-card">
       <h2>Add ${kind}</h2>
       <form id="create">
         <input type="hidden" name="kind" value="${kind}">
@@ -1001,12 +1057,14 @@ function render(){
     b.onclick=()=>go(b.dataset.page);
   });
 
-  document.querySelectorAll("[data-add]").forEach(b=>{
-    b.onclick=()=>{
-      document.querySelector("#app").insertAdjacentHTML("afterbegin",addForm(b.dataset.add));
+
+  document.querySelectorAll("[data-add]").forEach(b => {
+    b.onclick = () => {
+      b.insertAdjacentHTML("afterend", addForm(b.dataset.add));
       wireForm();
     };
   });
+
 
   document.querySelectorAll("[data-del]").forEach(b=>{
     b.onclick=()=>{
