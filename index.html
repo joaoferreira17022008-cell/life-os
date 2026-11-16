@@ -1429,15 +1429,15 @@ let allSessions=[
       <section class="card">
         <h2>Exam dates</h2>
         ${data.exams.map(x=>`
-  <div class="item">
-    <div>
-      <strong>${esc(x.title)}</strong>
-      <p>${esc(x.subject||"")}</p>
-      <p>${esc(x.date||"")}</p>
-    </div>
-  </div>
-`).join("")}
-      </section>`;
+          <div class="item">
+            <div>
+              <strong>${esc(x.title)}</strong>
+              <p>${esc(x.subject||"")}</p>
+              <p>${esc(x.date||"")}</p>
+            </div>
+          </div>
+        `).join("")}
+              </section>`;
   }
 
   if(page==="Settings"){
