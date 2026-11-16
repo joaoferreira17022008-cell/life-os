@@ -513,6 +513,35 @@ th {
   .stat { min-height: 90px; }
 }
 
+
+/* Fix sidebar positioning */
+@media (min-width: 651px) {
+  .app-shell {
+    display: grid !important;
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .sidebar {
+    display: flex !important;
+    grid-column: 1;
+    grid-row: 1;
+    width: 76px;
+    min-width: 76px;
+    align-self: stretch;
+    justify-self: start;
+  }
+
+  .content-area {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+
 </style>
 </head>
 
