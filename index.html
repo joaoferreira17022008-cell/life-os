@@ -1428,7 +1428,15 @@ let allSessions=[
       </section>
       <section class="card">
         <h2>Exam dates</h2>
-        ${data.exams.map(x=>listItem(x,"exams")).join("")||'<p class="muted">No exams yet.</p>'}
+        ${data.exams.map(x=>`
+  <div class="item">
+    <div>
+      <strong>${esc(x.title)}</strong>
+      <p>${esc(x.subject||"")}</p>
+      <p>${esc(x.date||"")}</p>
+    </div>
+  </div>
+`).join("")}
       </section>`;
   }
 
