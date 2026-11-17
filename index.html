@@ -3,8 +3,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101014">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIFE OS">
+<link rel="apple-touch-icon" href="./icons/life-os.svg">
 <meta name="description" content="LIFE OS personal university and life organizer">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>LIFE OS</title>
@@ -468,45 +472,305 @@ th {
 
 /* Mobile navigation */
 
-.navmobile { display: none; }
 
-@media(max-width: 850px) {
-  .app-shell { grid-template-columns: 190px minmax(0, 1fr); }
-  .content-area { padding: 23px 18px; }
-  .stats { grid-template-columns: repeat(2, 1fr); }
+/* Mobile navigation and iPhone layout */
+
+.navmobile,
+.mobile-fab-wrap {
+  display: none;
 }
 
-@media(max-width: 650px) {
-  header.topbar { padding: 0 13px; }
-  .crumb { display: none; }
-  .topbar-left, .top-actions { gap: 9px; }
-  .app-shell { display: block; }
-  .sidebar { display: none; }
-  .content-area { padding: 15px 12px; }
-  .navmobile {
-    display: flex;
-    gap: 5px;
-    overflow-x: auto;
-    padding: 9px 10px;
-    background: var(--sidebar);
-    border-bottom: 1px solid var(--line);
+@media(max-width:850px) {
+  .content-area {
+    padding: 22px 18px;
   }
-  .navmobile button {
+
+  .stats {
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+
+@media(max-width:650px) {
+  body {
+    font-size: 15px;
+    padding-bottom: 0;
+  }
+
+  header.topbar {
+    height: 56px;
+    padding: 0 13px;
+  }
+
+  .crumb,
+  #today,
+  #export {
+    display: none !important;
+  }
+
+  .topbar-left,
+  .top-actions {
+    gap: 8px;
+  }
+
+  .status {
+    max-width: 115px;
+    overflow: hidden;
     white-space: nowrap;
-    padding: 7px 10px;
+    text-overflow: ellipsis;
+    font-size: 10px;
+  }
+
+  #logout {
+    padding: 8px 10px;
     font-size: 12px;
   }
-  .grid { grid-template-columns: 1fr; }
-  h1 { font-size: 22px; }
-  #today { display: none; }
+
+  .app-shell {
+    display: block !important;
+  }
+
+  .sidebar {
+    display: none !important;
+  }
+
+  .content-area {
+    padding: 19px 14px calc(105px + env(safe-area-inset-bottom));
+  }
+
+  main {
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 25px;
+    line-height: 1.25;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .sub {
+    font-size: 14px;
+    margin-bottom: 17px;
+  }
+
+  .card {
+    padding: 17px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 9px;
+  }
+
+  .stat {
+    min-height: 95px;
+    padding: 14px;
+  }
+
+  button {
+    min-height: 44px;
+    border-radius: 9px;
+    padding: 10px 13px;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 9px;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  label.full,
+  form .actions {
+    grid-column: auto;
+  }
+
+  form .actions {
+    flex-wrap: wrap;
+  }
+
+  form .actions button {
+    flex: 1;
+  }
+
+  .item {
+    padding: 14px;
+    flex-wrap: wrap;
+    border-radius: 10px;
+  }
+
+  .item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .days {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .days button {
+    flex: 0 0 49px;
+    min-height: 48px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .class-editor-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* Fixed bottom navigation */
+  .navmobile {
+    display: grid;
+    grid-template-columns: repeat(6,minmax(0,1fr));
+    gap: 2px;
+    position: fixed;
+    z-index: 30;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 7px 5px calc(7px + env(safe-area-inset-bottom));
+    background: #111216;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -5px 20px #0005;
+  }
+
+  .navmobile button {
+    min-width: 0;
+    min-height: 53px;
+    padding: 5px 1px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+
+  .navmobile button.active {
+    color: #c5b6ff;
+    background: #272332;
+    border-color: #393149;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .nav-text {
+    overflow: hidden;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* More menu */
+  .mobile-more-menu {
+    position: fixed;
+    z-index: 45;
+    right: 10px;
+    bottom: calc(77px + env(safe-area-inset-bottom));
+    min-width: 165px;
+    display: grid;
+    gap: 5px;
+    padding: 9px;
+    background: #202129;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 8px 28px #0009;
+  }
+
+  .mobile-more-menu button {
+    text-align: left;
+    background: transparent;
+  }
+
+  /* Floating add button */
+  .mobile-fab-wrap {
+    display: block;
+    position: fixed;
+    z-index: 35;
+    right: 17px;
+    bottom: calc(83px + env(safe-area-inset-bottom));
+  }
+
+  #mobileFab {
+    width: 59px;
+    height: 59px;
+    min-height: 59px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--purple);
+    color: white;
+    font-size: 34px;
+    box-shadow: 0 5px 18px #0008;
+  }
+
+  .mobile-add-menu {
+    position: absolute;
+    right: 0;
+    bottom: 70px;
+    display: grid;
+    gap: 8px;
+    width: 165px;
+    padding: 10px;
+    background: #202129;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 8px 28px #0009;
+  }
+
+  .mobile-add-menu button {
+    text-align: left;
+  }
+
+  .swipe-hint {
+    color: var(--muted);
+    font-size: 11px;
+    text-align: center;
+  }
 }
 
-@media(max-width: 440px) {
-  form { grid-template-columns: 1fr; }
-  label.full, form .actions { grid-column: auto; }
-  .card { padding: 14px; }
-  .stats { gap: 8px; }
-  .stat { min-height: 90px; }
+@media(max-width:380px) {
+  .navmobile button {
+    font-size: 9px;
+  }
+
+  .content-area {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 }
 
 
@@ -636,7 +900,15 @@ button.edit-button:hover {
     </aside>
 
     <div class="content-area">
-      <div class="navmobile" id="mobileNav"></div>
+      <div class="mobile-fab-wrap">
+          <button id="mobileFab" aria-label="Add a new item">＋</button>
+        
+          <div id="mobileAddMenu" class="mobile-add-menu" hidden>
+            <button data-quick-add="Study">＋ Study task</button>
+            <button data-quick-add="Exam">＋ Exam</button>
+            <button data-quick-add="Event">＋ Event</button>
+          </div>
+        </div>
       <main id="app" aria-live="polite"></main>
     </div>
 
@@ -1070,16 +1342,84 @@ function go(p){
 }
 
 
+
 function nav(){
   const icons = {
-    "Home": "⌂",
-    "Timetable": "▦",
-    "Study planner": "✎",
-    "Tests & exams": "◷",
-    "Calendar": "▣",
-    "Events": "◈",
-    "Settings": "⚙"
+    "Home":"⌂",
+    "Timetable":"▦",
+    "Study planner":"✎",
+    "Tests & exams":"◷",
+    "Calendar":"▣",
+    "Events":"◈",
+    "Settings":"⚙"
   };
+
+  const desktopHtml = navItems.map(p => `
+    <button
+      class="${page===p?'active':''}"
+      data-page="${p}"
+      data-tooltip="${p}"
+      title="${p}"
+      aria-label="${p}">
+      ${icons[p]}
+    </button>
+  `).join("");
+
+  const primary = [
+    "Home",
+    "Timetable",
+    "Study planner",
+    "Tests & exams",
+    "Calendar"
+  ];
+
+  const mobileHtml = primary.map(p => `
+    <button
+      class="${page===p?'active':''}"
+      data-page="${p}"
+      title="${p}">
+      <span class="nav-icon">${icons[p]}</span>
+      <span class="nav-text">${p==="Study planner"?"Study":p==="Tests & exams"?"Exams":p}</span>
+    </button>
+  `).join("");
+
+  const moreActive = page==="Events" || page==="Settings";
+
+  document.querySelector("#nav").innerHTML = desktopHtml;
+
+  document.querySelector("#mobileNav").innerHTML = `
+    ${mobileHtml}
+    <button id="mobileMore" class="${moreActive?'active':''}">
+      <span class="nav-icon">⋯</span>
+      <span class="nav-text">More</span>
+    </button>
+
+    <div id="mobileMoreMenu" class="mobile-more-menu" hidden>
+      <button data-more-page="Events">◈ Events</button>
+      <button data-more-page="Settings">⚙ Settings</button>
+    </div>
+  `;
+
+  document.querySelectorAll("#nav [data-page]").forEach(b=>{
+    b.onclick=()=>go(b.dataset.page);
+  });
+
+  document.querySelectorAll("#mobileNav [data-page]").forEach(b=>{
+    b.onclick=()=>go(b.dataset.page);
+  });
+
+  document.querySelector("#mobileMore").onclick=()=>{
+    const menu=document.querySelector("#mobileMoreMenu");
+    menu.hidden=!menu.hidden;
+  };
+
+  document.querySelectorAll("[data-more-page]").forEach(b=>{
+    b.onclick=()=>{
+      go(b.dataset.morePage);
+    };
+  });
+}
+
 
   const desktopHtml = navItems.map(p =>
     `<button
