@@ -1,8 +1,20 @@
+
 {
   "name": "LIFE OS",
   "short_name": "LIFE OS",
+  "description": "Personal university and life organizer",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#101827"
+  "orientation": "portrait",
+  "background_color": "#101014",
+  "theme_color": "#101014",
+  "icons": [
+    {
+      "src": "./icons/life-os.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
