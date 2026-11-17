@@ -1,0 +1,1842 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIFE OS">
+<link rel="apple-touch-icon" href="./icons/life-os.png">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="LIFE OS personal university and life organizer">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>LIFE OS</title>
+
+<style>
+
+:root {
+  --bg: #101014;
+  --sidebar: #0c0d10;
+  --panel: #18191f;
+  --panel2: #202129;
+  --line: #2b2c35;
+  --text: #ededf2;
+  --muted: #92939f;
+  --purple: #8b72e9;
+  --purple-hover: #a18cf5;
+  --green: #4cc9a6;
+  --amber: #f2bd66;
+  --red: #ef8585;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 Inter, system-ui, -apple-system, sans-serif;
+}
+
+button, input, select, textarea { font: inherit; }
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: #22232b;
+  color: var(--text);
+  padding: 9px 13px;
+  border-radius: 7px;
+  transition: .18s ease;
+}
+
+button:hover {
+  background: #30313c;
+  border-color: #484957;
+}
+
+button.primary {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: white;
+  font-weight: 600;
+}
+
+button.primary:hover {
+  background: var(--purple-hover);
+}
+
+button.danger {
+  color: var(--red);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
+/* Top toolbar */
+
+header.topbar {
+  height: 58px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 23px;
+  background: #111216;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar-left, .top-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brandmark {
+  font-weight: 800;
+  letter-spacing: .13em;
+  font-size: 15px;
+}
+
+.brandmark span { color: var(--purple); }
+
+.crumb {
+  color: var(--muted);
+  font-size: 13px;
+  border-left: 1px solid var(--line);
+  padding-left: 18px;
+}
+
+#today, .status {
+  color: var(--muted);
+  font-size: 12px;
+}
+/* Compact icon sidebar */
+
+.app-shell {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+.sidebar {
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.workspace-switch {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  background: #17181e;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  font-size: 21px;
+}
+
+.workspace-switch small,
+.workspace-switch strong,
+.nav-label,
+.sidebar-bottom {
+  display: none;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+}
+
+#nav button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #a4a5b0;
+  font-size: 22px;
+  text-align: center;
+}
+
+#nav button:hover {
+  background: #1b1c23;
+  color: var(--text);
+}
+
+#nav button.active {
+  background: #272332;
+  border-color: #393149;
+  color: #c5b6ff;
+}
+
+/* Hover tooltip */
+
+#nav button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 59px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #292832;
+  color: white;
+  border: 1px solid #454451;
+  border-radius: 6px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 5px 18px #0008;
+}
+
+#nav button:hover::after,
+#nav button:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.content-area {
+  min-width: 0;
+  padding: 30px 36px;
+}
+
+
+main {
+  max-width: 1150px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Headings */
+
+h1 {
+  font-size: 25px;
+  letter-spacing: -.7px;
+  margin: 0 0 5px;
+  font-weight: 650;
+}
+
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 15px;
+}
+
+.muted, .sub { color: var(--muted); }
+
+.sub {
+  margin-bottom: 25px;
+  font-size: 13px;
+}
+
+/* Panels and dashboard cards */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 22px 0;
+  gap: 12px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 19px;
+  margin-bottom: 15px;
+}
+
+.stat {
+  min-height: 105px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: -1px;
+  color: white;
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  padding: 12px 13px;
+  background: #202129;
+  border: 1px solid #30313b;
+  border-radius: 7px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.item p {
+  margin: 3px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tag {
+  display: inline-block;
+  border-radius: 5px;
+  padding: 3px 8px;
+  background: #302b40;
+  color: #c8baff;
+  font-size: 11px;
+}
+
+.tag.high {
+  background: #462a32;
+  color: #ffb7c0;
+}
+
+.tag.medium {
+  background: #453927;
+  color: #f5d28d;
+}
+
+.empty {
+  padding: 30px 15px;
+  text-align: center;
+  color: var(--muted);
+  background: #15161c;
+  border: 1px dashed #353641;
+  border-radius: 7px;
+}
+
+/* Forms */
+/* Create forms and list spacing */
+
+.create-form-card {
+  margin-top: 22px;
+  margin-bottom: 28px;
+}
+
+#create {
+  margin-top: 8px;
+}
+form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+label.full { grid-column: 1 / -1; }
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px 11px;
+  background: #111218;
+  border: 1px solid #343540;
+  border-radius: 6px;
+  color: var(--text);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--purple);
+}
+
+textarea { min-height: 85px; }
+
+form .actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+}
+
+/* Timetable */
+
+.days {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 17px 0;
+}
+
+.days button {
+  min-width: 48px;
+  background: #202129;
+}
+
+.days button.selected {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: white;
+}
+
+.timeline { display: grid; gap: 9px; }
+
+.timeline .item {
+  border-left: 3px solid var(--purple);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th, td {
+  text-align: left;
+  padding: 11px 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Authentication */
+
+.auth-wrap {
+  max-width: 440px;
+  margin: 9vh auto;
+  padding: 0 18px;
+}
+
+.auth-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 28px;
+}
+
+.auth-card form { grid-template-columns: 1fr; }
+.auth-card label.full, .auth-card form .actions { grid-column: auto; }
+
+.notice {
+  padding: 11px 13px;
+  border-radius: 7px;
+  background: #29243a;
+  color: #d2c8ff;
+  margin: 12px 0;
+}
+
+.error { color: #ffaaaa; }
+
+/* Responsive navigation and mobile controls */
+.navmobile { display: none; }
+.mobile-fab, .mobile-add-menu, .mobile-more-menu { display: none; }
+
+@media(max-width: 850px) {
+  .app-shell { grid-template-columns: 190px minmax(0, 1fr); }
+  .content-area { padding: 23px 18px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 650px) {
+  header.topbar { padding: 0 13px; height: 56px; }
+  .crumb { display: none; }
+  .topbar-left, .top-actions { gap: 9px; }
+  .top-actions { font-size: 11px; }
+  .app-shell { display: block; }
+  .sidebar { display: none; }
+  .content-area { padding: 15px 12px calc(100px + env(safe-area-inset-bottom)); }
+  .navmobile {
+    display: flex;
+    position: fixed;
+    z-index: 30;
+    left: 0; right: 0; bottom: 0;
+    justify-content: space-around;
+    gap: 3px;
+    padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+    background: rgba(12,13,16,.97);
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+    overflow: visible;
+    backdrop-filter: blur(14px);
+  }
+  .navmobile button {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 52px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 2px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .navmobile button.active { color: #fff; background: #29243a; border-radius: 10px; }
+  .navmobile button .nav-icon { font-size: 19px; line-height: 1.1; }
+  .mobile-fab {
+    display: flex;
+    position: fixed;
+    z-index: 42;
+    right: 18px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    width: 58px; height: 58px;
+    align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--purple);
+    color: white;
+    border: 0;
+    box-shadow: 0 7px 24px #0008;
+    font-size: 31px;
+    line-height: 1;
+  }
+  .mobile-add-menu, .mobile-more-menu {
+    display: flex;
+    position: fixed;
+    z-index: 41;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px;
+    background: #202129;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    box-shadow: 0 8px 28px #0009;
+  }
+  .mobile-add-menu { right: 18px; bottom: calc(148px + env(safe-area-inset-bottom)); }
+  .mobile-more-menu { right: 8px; bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .mobile-add-menu button, .mobile-more-menu button { min-height: 44px; text-align: left; }
+  .grid { grid-template-columns: 1fr; }
+  h1 { font-size: 24px; }
+  h2 { font-size: 18px; }
+  #today { display: none; }
+  button { min-height: 42px; padding: 10px 13px; }
+  input, select, textarea { min-height: 44px; font-size: 16px; }
+  textarea { min-height: 90px; }
+  .days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 5px; }
+  .days button { min-width: 0; padding: 9px 2px; }
+  .card { padding: 16px; border-radius: 12px; }
+  .item { gap: 10px; }
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@media(max-width: 440px) {
+  form { grid-template-columns: 1fr; }
+  label.full, form .actions { grid-column: auto; }
+  .stats { gap: 8px; }
+  .stat { min-height: 90px; }
+  .top-actions .status { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* Fix sidebar positioning */
+@media (min-width: 651px) {
+  .app-shell {
+    display: grid !important;
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .sidebar {
+    display: flex !important;
+    grid-column: 1;
+    grid-row: 1;
+    width: 76px;
+    min-width: 76px;
+    align-self: stretch;
+    justify-self: start;
+  }
+
+  .content-area {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    width: 100%;
+  }
+}
+@media (min-width: 651px) {
+  .app-shell {
+    min-height: calc(100vh - 58px);
+    align-items: stretch;
+  }
+
+  .sidebar {
+    min-height: calc(100vh - 58px);
+    height: 100%;
+    align-self: stretch;
+    border-right: 1px solid var(--line);
+  }
+}
+
+/* Edit and delete controls */
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+button.edit-button {
+  color: #c5b6ff;
+  background: #272332;
+  border-color: #393149;
+}
+
+button.edit-button:hover {
+  background: #393149;
+}
+
+.edit-form-card {
+  margin: 12px 0 25px;
+  border-color: var(--purple);
+}
+
+.edit-form-card h2 {
+  margin-bottom: 14px;
+}
+
+.class-editor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #202129;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  margin-bottom: 8px;
+}
+
+@media(max-width: 440px) {
+  .class-editor-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brandmark">LIFE <span>OS</span></div>
+    <div class="crumb">Workspace / Personal dashboard</div>
+  </div>
+
+  <div class="top-actions">
+    <span id="today"></span>
+    <span class="status" id="cloudStatus">Connecting…</span>
+    <button id="export" hidden>Export</button>
+    <button id="logout" hidden>Log out</button>
+  </div>
+</header>
+
+<div id="auth" class="auth-wrap" hidden></div>
+
+<div id="workspace" hidden>
+  <div class="app-shell">
+
+    <aside class="sidebar">
+        <div class="workspace-switch" title="Personal LIFE OS">
+          ◈
+        </div>
+
+      <div class="nav-label">WORKSPACE</div>
+      <nav id="nav"></nav>
+
+      <div class="sidebar-bottom">
+        LIFE OS · Personal edition
+        <br>
+        Cloud-powered workspace
+      </div>
+    </aside>
+
+    <div class="content-area">
+      <div class="navmobile" id="mobileNav"></div>
+      <main id="app" aria-live="polite"></main>
+    </div>
+
+  </div>
+  <button id="mobileFab" class="mobile-fab" type="button" aria-label="Add item">+</button>
+  <div id="mobileAddMenu" class="mobile-add-menu" hidden>
+    <button type="button" data-quick-add="Study">＋ Study task</button>
+    <button type="button" data-quick-add="Exam">＋ Exam / test</button>
+    <button type="button" data-quick-add="Event">＋ Event</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* LIFE OS Supabase configuration */
+const SUPABASE_URL = "https://ehqtqkpgawiwnvcbqyqe.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4sjEIh5OY_PokLfbfupt_w_cJqhenyY";
+
+/* Use supabaseClient to avoid conflicting with the Supabase library global */
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+const subjects=[
+"CDI11 – Cálculo Diferencial e Integral I",
+"QG3 – Química Geral",
+"AL6 – Álgebra Linear",
+"SD2 – Sistemas Digitais",
+"IEECom – Introdução à Engenharia Eletrotécnica e de Computadores",
+"Comunicação e Ciência"
+];
+
+const schedule=[
+["Monday","09:00","12:00","Comunicação e Ciência","V1.31","Every week"],
+["Monday","12:30","14:30","SD2 – Sistemas Digitais (PB) ","V1.32","1,3,7,10,12,14"],
+["Monday","14:30","15:30","AL6 – Álgebra Linear (PB)","V1.25","1-4,6-7,9-15"],
+["Monday","15:30","16:30","CDI11 – Cálculo Diferencial e Integral I (PB) ","V1.25","1-4,6-7,9-15"],
+["Monday","17:30","19:00","CDI11 – Cálculo Diferencial e Integral I (TP)","PA2","1-4,6-7,9-15"],
+["Tuesday","11:30","12:30","CDI11 – Cálculo Diferencial e Integral I (TP)","PA2","1-7,9-12,15"],
+["Tuesday","13:30","15:30","QG3 – Química Geral (Lab)","LQG Lab. Química Geral","1,3,5,7,10,12"],
+["Tuesday","15:30","17:30","IEECom – Introdução à Engenharia Eletrotécnica e de Computadores","LE1","1-7"],
+["Wednesday","11:30","13:30","IEECom – Introdução à Engenharia Eletrotécnica e de Computadores","LE1","1-7"],
+["Wednesday","13:30","15:00","AL6 – Álgebra Linear (TP)","GA4","1-7,9-15"],
+["Wednesday","15:00","16:00","QG3 – Química Geral (T)","QA02.2","1-7,9-15"],
+["Thursday","12:30","14:30","SD2 – Sistemas Digitais (Lab)","SD1","2,4,6,9,11,13,15"],
+["Thursday","15:30","17:00","AL6 – Álgebra Linear (TP)","GA4","1-6,9,15"],
+["Thursday","18:00","19:00","QG3 – Química Geral (T)","QA02.2","1-6,9-15"],
+["Friday","15:00","16:00","QG3 – Química Geral (PB) ","V1.32","1-6,9,15"],
+["Friday","17:00","19:00","SD2 – Sistemas Digitais (T)","GA4","1-6,9,15"]
+];
+
+function getSchedule(){
+  return Array.isArray(data.weeklyTimetable)
+    ? data.weeklyTimetable
+    : schedule;
+}
+
+function scheduleEditor(){
+  return `
+    <section class="card">
+      <div class="row">
+        <h2>Edit weekly timetable</h2>
+        <button class="primary" id="addClass">＋ Add class</button>
+      </div>
+
+      <div id="classFormContainer"></div>
+
+      ${getSchedule().map((x,i)=>`
+        <div class="class-editor-row">
+          <div>
+            <strong>${esc(x[3])}</strong>
+            <p class="muted">${esc(x[0])} · ${esc(x[1])}–${esc(x[2])} · ${esc(x[4]||"No room")}</p>
+            <p class="muted">Weeks: ${esc(x[5])}</p>
+          </div>
+          <div class="item-actions">
+            <button class="edit-button" data-edit-class="${i}">Edit</button>
+            <button class="danger" data-delete-class="${i}">×</button>
+          </div>
+        </div>
+      `).join("")}
+    </section>`;
+}
+
+function classEditForm(index=null){
+  const existing=index===null
+    ? ["Monday","09:00","10:00","","","Every week"]
+    : getSchedule()[index];
+
+  return `
+    <section class="card edit-form-card">
+      <h2>${index===null?"Add class":"Edit class"}</h2>
+
+      <form id="classForm">
+        <input type="hidden" name="index" value="${index===null?"":index}">
+
+        <label>Day
+          <select name="day">
+            ${DAYS.map(d=>`<option ${existing[0]===d?"selected":""}>${d}</option>`).join("")}
+          </select>
+        </label>
+
+        <label>Class name
+          <input name="subject" value="${esc(existing[3])}" required>
+        </label>
+
+        <label>Start time
+          <input name="start" type="time" value="${esc(existing[1])}" required>
+        </label>
+
+        <label>End time
+          <input name="end" type="time" value="${esc(existing[2])}" required>
+        </label>
+
+        <label>Room
+          <input name="room" value="${esc(existing[4])}">
+        </label>
+
+        <label>Semester weeks
+          <input name="weeks" value="${esc(existing[5])}" required>
+        </label>
+
+        <p class="muted full">
+          Examples: Every week, 1-7, 1,3,5, or 1-4,6-10
+        </p>
+
+        <div class="actions">
+          <button class="primary">Save class</button>
+          <button type="button" id="cancelClass">Cancel</button>
+        </div>
+      </form>
+    </section>`;
+}
+
+function wireClassForm(){
+  const form=document.querySelector("#classForm");
+  if(!form)return;
+
+  form.onsubmit=e=>{
+    e.preventDefault();
+
+    const o=Object.fromEntries(new FormData(form));
+    const index=o.index;
+
+    const entry=[
+      o.day,
+      o.start,
+      o.end,
+      o.subject,
+      o.room,
+      o.weeks
+    ];
+
+    const updated=getSchedule().map(x=>[...x]);
+
+    if(index===""){
+      updated.push(entry);
+    }else{
+      updated[Number(index)]=entry;
+    }
+
+    data.weeklyTimetable=updated;
+    save();
+    render();
+  };
+
+  document.querySelector("#cancelClass").onclick=()=>{
+    render();
+  };
+}
+
+const defaultData={
+  tasks:[],
+  exams:[],
+  events:[],
+  weeklyTimetable:null
+};
+
+let data=structuredClone(defaultData);
+let page="Home";
+let week=academicWeek(new Date());
+let day="Monday";
+let currentUser=null;
+let savingTimer=null;
+
+function localDataKey(){
+  return currentUser ? "lifeos:"+currentUser.id : null;
+}
+
+function pendingSyncKey(){
+  return currentUser ? "lifeos-pending:"+currentUser.id : null;
+}
+
+function loadLocal(){
+  try{
+    const key=localDataKey();
+    const saved=key?localStorage.getItem(key):null;
+    return {...defaultData,...(saved?JSON.parse(saved):{})};
+  }catch{
+    return structuredClone(defaultData);
+  }
+}
+
+function saveLocal(){
+  const key=localDataKey();
+  if(key)localStorage.setItem(key,JSON.stringify(data));
+}
+
+function uuid(){
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+}
+
+function normalizeIds(){
+  for(const k of ["tasks","exams","events"]){
+    data[k]=data[k].map(x=>({...x,id:String(x.id||uuid())}));
+  }
+}
+
+function academicWeek(d){
+  let start=new Date(2026,8,7);
+  let m=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  return Math.floor((m-start)/604800000)+1;
+}
+function getLocalDate(dateString){
+  if(!dateString)return null;
+
+  const [year,month,day]=dateString.split("-").map(Number);
+  return new Date(year,month-1,day);
+}
+
+function getDatedItemsForDay(selectedDay,selectedWeek){
+  const items=[];
+
+  for(const event of data.events){
+    const date=getLocalDate(event.date);
+
+    if(date && DAYS[date.getDay()===0?6:date.getDay()-1]===selectedDay
+       && academicWeek(date)===selectedWeek){
+      items.push({
+        title:event.title,
+        type:"Event",
+        start:event.start||"00:00",
+        end:event.end||"",
+        room:"",
+        notes:event.notes||""
+      });
+    }
+  }
+
+  for(const exam of data.exams){
+    const date=getLocalDate(exam.date);
+
+    if(date && DAYS[date.getDay()===0?6:date.getDay()-1]===selectedDay
+       && academicWeek(date)===selectedWeek){
+      items.push({
+        title:exam.title,
+        type:"Exam",
+        start:"00:00",
+        end:"",
+        room:exam.subject||"",
+        notes:exam.topics||""
+      });
+    }
+  }
+
+  return items;
+}
+  
+function weeksMatch(rule,w){
+  if(rule==="Every week")return true;
+  return rule.split(",").some(part=>{
+    let [a,b]=part.split("-").map(Number);
+    return b?w>=a&&w<=b:w===a;
+  });
+}
+
+function esc(s=""){
+  return String(s).replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
+
+const navItems=["Home","Timetable","Study planner","Tests & exams","Calendar","Events","Settings"];
+
+function setStatus(s){
+  document.querySelector("#cloudStatus").textContent=s;
+}
+
+function showAuth(message="",isError=false){
+  document.querySelector("#workspace").hidden=true;
+  document.querySelector("#auth").hidden=false;
+  document.querySelector("#logout").hidden=true;
+  document.querySelector("#export").hidden=true;
+
+  document.querySelector("#auth").innerHTML=`
+    <section class="auth-card">
+      <h1>Welcome to LIFE OS</h1>
+      <p class="muted">Sign in to access your personal timetable, study tasks, exams and events from any device.</p>
+      ${message?`<div class="notice ${isError?'error':''}">${esc(message)}</div>`:""}
+      <form id="authForm">
+        <label class="full">Email
+          <input name="email" type="email" autocomplete="email" required>
+        </label>
+        <label class="full">Password
+          <input name="password" type="password" autocomplete="current-password" minlength="6" required>
+        </label>
+        <div class="actions">
+          <button class="primary" name="mode" value="login">Log in</button>
+          <button name="mode" value="signup">Create account</button>
+        </div>
+      </form>
+      <p class="muted">Use the same account on your other devices to sync your data.</p>
+    </section>`;
+
+  document.querySelector("#authForm").onsubmit=authSubmit;
+}
+
+async function authSubmit(e){
+  e.preventDefault();
+
+  const f=new FormData(e.target);
+  const email=f.get("email");
+  const password=f.get("password");
+  const mode=e.submitter?.value||"login";
+
+  setStatus("Authenticating…");
+
+  let result=mode==="signup"
+    ? await supabaseClient.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: "https://joaoferreira17022008-cell.github.io/life-os/"
+  }
+})
+    : await supabaseClient.auth.signInWithPassword({email,password});
+
+  if(result.error){
+    showAuth(result.error.message,true);
+    return;
+  }
+
+  if(mode==="signup"&&!result.data.session){
+    showAuth("Account created. Check your email for a confirmation link, then return here and log in.");
+    return;
+  }
+
+  if(result.data.session){
+    await startSession(result.data.session);
+  }
+}
+
+async function startSession(session){
+  currentUser=session.user;
+  data=loadLocal();
+
+  document.querySelector("#auth").hidden=true;
+  document.querySelector("#workspace").hidden=false;
+  document.querySelector("#logout").hidden=false;
+  document.querySelector("#export").hidden=false;
+
+  setStatus("Loading cloud data…");
+
+  await loadCloudData();
+  render();
+}
+
+async function loadCloudData(){
+  if(!navigator.onLine){
+    data=loadLocal();
+    setStatus("Offline · local data");
+    return;
+  }
+
+  const {data:row,error}=await supabaseClient
+    .from("lifeos_data")
+    .select("data")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(error){
+    data=loadLocal();
+    setStatus("Offline cache · sync pending");
+    console.error(error);
+    return;
+  }
+
+  if(row?.data){
+    data={...defaultData,...row.data};
+  }else{
+    // New account: start empty, without importing another account's browser data.
+    data={...defaultData,tasks:[],exams:[],events:[],weeklyTimetable:null};
+  }
+
+  normalizeIds();
+  saveLocal();
+  if(!row?.data){
+    await pushCloudData();
+  }else{
+    setStatus("Synced · "+currentUser.email);
+  }
+}
+
+async function pushCloudData(){
+  if(!currentUser)return;
+  const pendingKey=pendingSyncKey();
+  if(!navigator.onLine){
+    if(pendingKey)localStorage.setItem(pendingKey,"1");
+    setStatus("Offline · changes saved on this device");
+    return;
+  }
+
+  setStatus("Syncing…");
+  const {error}=await supabaseClient
+    .from("lifeos_data")
+    .upsert({
+      user_id:currentUser.id,
+      data,
+      updated_at:new Date().toISOString()
+    },{onConflict:"user_id"});
+
+  if(error){
+    if(pendingKey)localStorage.setItem(pendingKey,"1");
+    setStatus("Sync pending · will retry online");
+    console.error(error);
+    return;
+  }
+
+  if(pendingKey)localStorage.removeItem(pendingKey);
+  setStatus("Synced · "+new Date().toLocaleTimeString());
+}
+
+function save(){
+  normalizeIds();
+  saveLocal();
+
+  if(currentUser){
+    const pendingKey=pendingSyncKey();
+    if(pendingKey)localStorage.setItem(pendingKey,"1");
+    clearTimeout(savingTimer);
+    savingTimer=setTimeout(pushCloudData,350);
+  }
+}
+
+function go(p){
+  const addMenu=document.querySelector("#mobileAddMenu");
+  const moreMenu=document.querySelector("#mobileMoreMenu");
+  if(addMenu)addMenu.hidden=true;
+  if(moreMenu)moreMenu.hidden=true;
+  page=p;
+  render();
+}
+
+
+function nav(){
+  const icons={
+    "Home":"⌂","Timetable":"▦","Study planner":"✎",
+    "Tests & exams":"◷","Calendar":"▣","Events":"◈","Settings":"⚙"
+  };
+  const desktopHtml=navItems.map(p=>`<button class="${page===p?'active':''}" data-page="${p}" data-tooltip="${p}" title="${p}" aria-label="${p}">${icons[p]}</button>`).join("");
+  const primary=["Home","Timetable","Study planner","Tests & exams"];
+  const mobileHtml=primary.map(p=>`<button class="${page===p?'active':''}" data-page="${p}" title="${p}"><span class="nav-icon">${icons[p]}</span><span>${p==="Study planner"?"Study":p==="Tests & exams"?"Tests":p}</span></button>`).join("")+`<button id="mobileMoreButton" type="button" title="More"><span class="nav-icon">•••</span><span>More</span></button><div id="mobileMoreMenu" class="mobile-more-menu" hidden><button type="button" data-more-page="Calendar">▣ Calendar</button><button type="button" data-more-page="Events">◈ Events</button><button type="button" data-more-page="Settings">⚙ Settings</button></div>`;
+  document.querySelector("#nav").innerHTML=desktopHtml;
+  document.querySelector("#mobileNav").innerHTML=mobileHtml;
+  document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>go(b.dataset.page));
+  const moreButton=document.querySelector("#mobileMoreButton");
+  const moreMenu=document.querySelector("#mobileMoreMenu");
+  if(moreButton&&moreMenu)moreButton.onclick=()=>moreMenu.hidden=!moreMenu.hidden;
+  document.querySelectorAll("[data-more-page]").forEach(b=>b.onclick=()=>go(b.dataset.morePage));
+}
+
+function addForm(kind){
+  let fields=kind==="Study"
+    ? `<label>Subject<select name="subject">${subjects.map(s=>`<option>${s}</option>`)}</select></label>
+       <label>Date<input name="date" type="date"></label>
+       <label>Preferred day<select name="day"><option value="">Unscheduled</option>${DAYS.map(d=>`<option>${d}</option>`)}</select></label>
+       <label>Duration (minutes)<input name="duration" type="number" value="60"></label>
+       <label>Priority<select name="priority"><option>Medium</option><option>High</option><option>Low</option></select></label>`
+    : kind==="Exam"
+    ? `<label>Subject<select name="subject">${subjects.map(s=>`<option>${s}</option>`)}</select></label>
+       <label>Date<input name="date" type="date" required></label>
+       <label>Priority<select name="priority"><option>Medium</option><option>High</option><option>Low</option></select></label>
+       <label class="full">Topics to revise<textarea name="topics"></textarea></label>`
+    : `<label>Date<input name="date" type="date" required></label>
+       <label>Start<input name="start" type="time"></label>
+       <label>End<input name="end" type="time"></label>`;
+
+  return `
+    <section class="card create-form-card">
+      <h2>Add ${kind}</h2>
+      <form id="create">
+        <input type="hidden" name="kind" value="${kind}">
+        <label class="full">Title
+          <input name="title" required placeholder="Enter a title">
+        </label>
+        ${fields}
+        <label class="full">Notes<textarea name="notes"></textarea></label>
+        <div class="actions">
+          <button class="primary">Save ${kind}</button>
+          <button type="button" id="cancel">Cancel</button>
+        </div>
+      </form>
+    </section>`;
+}
+
+function remove(kind,id){
+  if(!confirm("Delete this item?"))return;
+  data[kind]=data[kind].filter(x=>x.id!==id);
+  save();
+  render();
+}
+
+
+function listItem(x,kind){
+  return `
+    <div class="item">
+      <div>
+        <strong>${esc(x.title)}</strong>
+        <p>${esc(x.subject||x.date||x.day||"")}${x.start?" · "+x.start:""}${x.room?" · "+esc(x.room):""}</p>
+        ${x.notes?`<p>${esc(x.notes)}</p>`:""}
+        ${x.topics?`<p>Topics: ${esc(x.topics)}</p>`:""}
+      </div>
+      <div class="item-actions">
+        ${x.priority?`<span class="tag ${x.priority.toLowerCase()}">${esc(x.priority)}</span>`:""}
+        <button class="edit-button" data-edit="${kind}:${x.id}">Edit</button>
+        <button class="danger" data-del="${kind}:${x.id}" aria-label="Delete ${esc(x.title)}">×</button>
+      </div>
+    </div>`;
+}
+
+function editForm(kind,x){
+  const value = name => esc(x[name] || "");
+  const selected = (name,v) =>
+    x[name] === v ? "selected" : "";
+
+  let fields = "";
+
+  if(kind==="tasks"){
+    fields = `
+      <label>Subject
+        <select name="subject">
+          ${subjects.map(s=>`<option ${selected("subject",s)}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Date
+        <input name="date" type="date" value="${value("date")}">
+      </label>
+      <label>Preferred day
+        <select name="day">
+          <option value="">Unscheduled</option>
+          ${DAYS.map(d=>`<option ${selected("day",d)}>${d}</option>`).join("")}
+        </select>
+      </label>
+      <label>Duration (minutes)
+        <input name="duration" type="number" value="${value("duration")||60}">
+      </label>
+      <label>Priority
+        <select name="priority">
+          ${["High","Medium","Low"].map(p=>`<option ${selected("priority",p)}>${p}</option>`).join("")}
+        </select>
+      </label>`;
+  }
+
+  if(kind==="events"){
+    fields = `
+      <label>Date
+        <input name="date" type="date" value="${value("date")}" required>
+      </label>
+      <label>Start
+        <input name="start" type="time" value="${value("start")}">
+      </label>
+      <label>End
+        <input name="end" type="time" value="${value("end")}">
+      </label>`;
+  }
+
+  if(kind==="exams"){
+    fields = `
+      <label>Subject
+        <select name="subject">
+          ${subjects.map(s=>`<option ${selected("subject",s)}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Date
+        <input name="date" type="date" value="${value("date")}" required>
+      </label>
+      <label>Priority
+        <select name="priority">
+          ${["High","Medium","Low"].map(p=>`<option ${selected("priority",p)}>${p}</option>`).join("")}
+        </select>
+      </label>
+      <label class="full">Topics to revise
+        <textarea name="topics">${value("topics")}</textarea>
+      </label>`;
+  }
+
+  return `
+    <section class="card edit-form-card">
+      <h2>Edit ${kind==="tasks"?"Study task":kind==="exams"?"Exam":"Event"}</h2>
+      <form class="edit-item-form">
+        <input type="hidden" name="kind" value="${kind}">
+        <input type="hidden" name="id" value="${esc(x.id)}">
+
+        <label class="full">Title
+          <input name="title" value="${value("title")}" required>
+        </label>
+
+        ${fields}
+
+        <label class="full">Notes
+          <textarea name="notes">${value("notes")}</textarea>
+        </label>
+
+        <div class="actions">
+          <button class="primary">Save changes</button>
+          <button type="button" class="cancel-edit">Cancel</button>
+        </div>
+      </form>
+    </section>`;
+}
+
+function wireEditForm(){
+  document.querySelectorAll(".edit-item-form").forEach(form=>{
+    form.onsubmit=e=>{
+      e.preventDefault();
+
+      const o=Object.fromEntries(new FormData(form));
+      const kind=o.kind;
+      const id=o.id;
+
+      delete o.kind;
+      delete o.id;
+
+      const item=data[kind].find(x=>x.id===id);
+
+      if(item){
+        Object.assign(item,o);
+        save();
+        render();
+      }
+    };
+
+    form.querySelector(".cancel-edit").onclick=()=>{
+      render();
+    };
+  });
+}
+
+
+function render(){
+  nav();
+
+  let html="";
+
+  if(page==="Home"){
+    html=`
+      <h1>Good ${new Date().getHours()<12?"morning":new Date().getHours()<18?"afternoon":"evening"}.</h1>
+      <div class="sub">Here's what's happening in your LIFE OS.</div>
+      <div class="grid stats">
+        <div class="card stat"><strong>${data.tasks.filter(t=>!t.done).length}</strong><span>Pending study tasks</span></div>
+        <div class="card stat"><strong>${data.exams.length}</strong><span>Exams & tests</span></div>
+        <div class="card stat"><strong>${data.events.length}</strong><span>Personal events</span></div>
+        <div class="card stat"><strong>${data.tasks.length?Math.round(data.tasks.filter(t=>t.done).length/data.tasks.length*100):0}%</strong><span>Study completion</span></div>
+      </div>
+      <div class="grid">
+        <section class="card">
+          <h2>Upcoming exams</h2>
+            ${data.exams.length
+              ?data.exams.slice()
+                .sort((a,b)=>a.date.localeCompare(b.date))
+                .slice(0,5)
+                .map(x=>`
+                  <div class="item">
+                    <div>
+                      <strong>${esc(x.title)}</strong>
+                      <p>${esc(x.subject||"")}</p>
+                      <p>${esc(x.date||"")}</p>
+                    </div>
+                  </div>
+                `).join("")
+              :'<div class="empty">No exams added yet.</div>'}
+            </section>
+        <section class="card">
+          <h2>Study priorities</h2>
+          ${data.tasks.filter(t=>!t.done).slice(0,6).map(t=>`
+            <div class="item">
+              <label>
+                <span><input type="checkbox" data-task="${t.id}" ${t.done?"checked":""}> ${esc(t.title)}</span>
+                <p>${esc(t.subject||"General")} · ${t.date||t.day||"Unscheduled"}</p>
+              </label>
+            </div>`).join("")||'<div class="empty">No pending study tasks.</div>'}
+        </section>
+      </div>`;
+  }
+
+  if(page==="Timetable"){
+    let sessions=getSchedule()
+  .filter(x=>x[0]===day&&weeksMatch(x[5],week))
+  .map(x=>({
+    title:x[3],
+    start:x[1],
+    end:x[2],
+    room:x[4],
+    type:"Class"
+  }));
+
+let datedItems=getDatedItemsForDay(day,week);
+
+let allSessions=[
+  ...sessions,
+  ...datedItems
+].sort((a,b)=>a.start.localeCompare(b.start));
+    html=`
+      <h1>Weekly timetable</h1>
+      <div class="sub">Semester 1 · Week 1 began 7 September 2026. Current academic week: ${week}.</div>
+      <section class="card" id="timetableSwipe">
+        <div class="row">
+          <button id="prev">← Previous week</button>
+          <strong>Week ${week}</strong>
+          <button id="next">Next week →</button>
+        </div>
+        <div class="days">
+          ${DAYS.map(d=>`<button data-day="${d}" class="${day===d?'selected':''}">${d.slice(0,3)}</button>`).join("")}
+        </div>
+        <h2>${day}</h2>
+          ${allSessions.length
+            ?allSessions.map(x=>`
+              <div class="item">
+                <div>
+                  <strong>${esc(x.title)}</strong>
+                  <p>
+                    ${x.type==="Exam"?"Exam date":
+                      x.start==="00:00"&&!x.end?"All day":
+                      esc(x.start)+(x.end?"–"+esc(x.end):"")}
+                    ${x.room?" · "+esc(x.room):""}
+                  </p>
+                  ${x.notes?`<p>${esc(x.notes)}</p>`:""}
+                </div>
+                <span class="tag ${x.type==="Exam"?"high":x.type==="Event"?"medium":""}">
+                  ${x.type}
+                </span>
+              </div>`).join("")
+            :'<div class="empty">Nothing scheduled for this day.</div>'}
+      </section>
+      <section class="card">
+        <h2>Weekly class list</h2>
+        <p class="muted">Classes automatically appear only in their specified semester weeks.</p>
+        <table>
+          <tr><th>Day</th><th>Time</th><th>Class</th><th>Room</th></tr>
+          ${getSchedule().filter(x=>weeksMatch(x[5],week)).map(x=>`
+            <tr><td>${x[0]}</td><td>${x[1]}–${x[2]}</td><td>${x[3]}</td><td>${x[4]||"—"}</td></tr>`).join("")}
+        </table>
+      </section>
+      ${scheduleEditor()}`;
+  }
+
+  if(page==="Study planner"){
+    html=`
+      <h1>Study planner</h1>
+      <div class="sub">Track revision, topics and tasks.</div>
+      <button class="primary" data-add="Study">＋ Add study task</button>
+      <section class="card">
+        <h2>My study tasks</h2>
+        ${data.tasks.length
+          ?data.tasks.map(t=>`
+            <div class="item">
+              <label>
+                <span><input type="checkbox" data-task="${t.id}" ${t.done?"checked":""}> ${esc(t.title)}</span>
+                <p>${esc(t.subject||"")} · ${t.day||t.date||"Unscheduled"} · ${t.duration||60} min</p>
+              </label>
+              <div class="item-actions">
+                  <button class="edit-button" data-edit="tasks:${t.id}">Edit</button>
+                  <button class="danger" data-del="tasks:${t.id}">×</button>
+                </div>
+            </div>`).join("")
+          :'<div class="empty">Add your first study task.</div>'}
+      </section>
+      <section class="card">
+        <h2>Automatic study suggestions</h2>
+        <p class="muted">This first version can assign unscheduled tasks to open weekday afternoon slots. Review suggestions before relying on them.</p>
+        <button id="autoplan">Suggest study slots</button>
+        <div id="suggestions"></div>
+      </section>`;
+  }
+
+  if(page==="Tests & exams"){
+    html=`
+      <h1>Tests & exams</h1>
+      <div class="sub">Dates, subjects, revision topics and priorities.</div>
+      <button class="primary" data-add="Exam">＋ Add exam</button>
+      <section class="card">
+        ${data.exams.length
+          ?data.exams.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>listItem(x,"exams")).join("")
+          :'<div class="empty">No exams registered.</div>'}
+      </section>`;
+  }
+
+  if(page==="Calendar"||page==="Events"){
+    html=`
+      <h1>${page}</h1>
+      <div class="sub">Manage appointments, deadlines and personal plans.</div>
+      <button class="primary" data-add="Event">＋ Add event</button>
+      <section class="card">
+        ${data.events.length
+          ?data.events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>listItem(x,"events")).join("")
+          :'<div class="empty">No events added yet.</div>'}
+      </section>
+      <section class="card">
+        <h2>Exam dates</h2>
+        ${data.exams.map(x=>`
+          <div class="item">
+            <div>
+              <strong>${esc(x.title)}</strong>
+              <p>${esc(x.subject||"")}</p>
+              <p>${esc(x.date||"")}</p>
+            </div>
+          </div>
+        `).join("")}
+              </section>`;
+  }
+
+  if(page==="Settings"){
+    html=`
+      <h1>Settings & data</h1>
+      <div class="sub">Your data is stored in your Supabase account and cached in this browser.</div>
+      <section class="card">
+        <h2>Backup and restore</h2>
+        <p class="muted">Export a JSON backup regularly. Import it on another device to transfer your data.</p>
+        <button id="export2">Download backup</button>
+        <label class="full">Import backup<input type="file" id="import" accept="application/json"></label>
+      </section>
+      <section class="card">
+        <h2>Cloud account</h2>
+        <p class="muted">Signed in as ${esc(currentUser?.email||"")}. Your personal data is protected by database row-level security.</p>
+        <button class="danger" id="clear">Delete all LIFE OS data</button>
+      </section>`;
+  }
+
+  document.querySelector("#app").innerHTML=html;
+  
+  const addClassButton=document.querySelector("#addClass");
+
+  if(addClassButton){
+    addClassButton.onclick=()=>{
+      document.querySelector("#classFormContainer").innerHTML=
+        classEditForm();
+
+      wireClassForm();
+    };
+  }
+
+  document.querySelectorAll("[data-edit-class]").forEach(b=>{
+    b.onclick=()=>{
+      const index=Number(b.dataset.editClass);
+
+      document.querySelector("#classFormContainer").innerHTML=
+        classEditForm(index);
+
+      wireClassForm();
+    };
+  });
+
+  document.querySelectorAll("[data-delete-class]").forEach(b=>{
+    b.onclick=()=>{
+      if(!confirm("Delete this class from your timetable?"))return;
+
+      const index=Number(b.dataset.deleteClass);
+
+      data.weeklyTimetable=getSchedule()
+        .filter((x,i)=>i!==index)
+        .map(x=>[...x]);
+
+      save();
+      render();
+    };
+  });
+  
+  document.querySelectorAll("[data-page]").forEach(b=>{
+    b.onclick=()=>go(b.dataset.page);
+  });
+
+
+  document.querySelectorAll("[data-add]").forEach(b => {
+    b.onclick = () => {
+      b.insertAdjacentHTML("afterend", addForm(b.dataset.add));
+      wireForm();
+    };
+  });
+
+  
+document.querySelectorAll("[data-edit]").forEach(b=>{
+  b.onclick=()=>{
+    const [kind,id]=b.dataset.edit.split(":");
+    const item=data[kind]?.find(x=>x.id===id);
+
+    if(!item)return;
+
+    document.querySelectorAll(".edit-form-card").forEach(f=>f.remove());
+
+    b.closest(".item").insertAdjacentHTML(
+      "afterend",
+      editForm(kind,item)
+    );
+
+    wireEditForm();
+  };
+});
+
+  document.querySelectorAll("[data-del]").forEach(b=>{
+    b.onclick=()=>{
+      let [k,id]=b.dataset.del.split(":");
+      remove(k,id);
+    };
+  });
+
+  document.querySelectorAll("[data-task]").forEach(b=>{
+    b.onchange=()=>{
+      let t=data.tasks.find(t=>t.id===b.dataset.task);
+      if(t){
+        t.done=b.checked;
+        save();
+        render();
+      }
+    };
+  });
+
+  document.querySelectorAll("[data-day]").forEach(b=>{
+    b.onclick=()=>{
+      day=b.dataset.day;
+      render();
+    };
+  });
+
+  if(document.querySelector("#prev")){
+    document.querySelector("#prev").onclick=()=>{
+      week--;
+      render();
+    };
+  }
+
+  if(document.querySelector("#next")){
+    document.querySelector("#next").onclick=()=>{
+      week++;
+      render();
+    };
+  }
+
+  const swipeArea=document.querySelector("#timetableSwipe");
+  if(swipeArea){
+    let touchStartX=0;
+    swipeArea.ontouchstart=e=>{touchStartX=e.changedTouches[0].screenX;};
+    swipeArea.ontouchend=e=>{
+      const dx=e.changedTouches[0].screenX-touchStartX;
+      if(Math.abs(dx)<65)return;
+      if(dx<0){
+        const index=DAYS.indexOf(day);
+        if(index<DAYS.length-1)day=DAYS[index+1];
+        else{day="Monday";week++;}
+      }else{
+        const index=DAYS.indexOf(day);
+        if(index>0)day=DAYS[index-1];
+        else{day="Sunday";week--;}
+      }
+      render();
+    };
+  }
+
+  if(document.querySelector("#autoplan")){
+    document.querySelector("#autoplan").onclick=()=>{
+      let slots=[];
+      ["Monday","Tuesday","Wednesday","Thursday","Friday"].forEach(d=>
+        ["15:00","16:30","18:00"].forEach(s=>slots.push({day:d,start:s}))
+      );
+
+      let used=new Set(data.tasks.filter(t=>t.day).map(t=>t.day+t.start));
+      let i=0;
+
+      data.tasks.filter(t=>!t.done&&!t.day).forEach(t=>{
+        while(i<slots.length&&used.has(slots[i].day+slots[i].start))i++;
+        if(i<slots.length){
+          Object.assign(t,slots[i]);
+          used.add(slots[i].day+slots[i].start);
+          i++;
+        }
+      });
+
+      save();
+      render();
+    };
+  }
+
+  if(document.querySelector("#export2")){
+    document.querySelector("#export2").onclick=exportData;
+  }
+
+  if(document.querySelector("#clear")){
+    document.querySelector("#clear").onclick=async()=>{
+      if(confirm("Permanently delete all LIFE OS data from your cloud account?")){
+        data=structuredClone(defaultData);
+        saveLocal();
+        await pushCloudData();
+        render();
+      }
+    };
+  }
+
+  if(document.querySelector("#import")){
+    document.querySelector("#import").onchange=importData;
+  }
+
+  const mobileFab=document.querySelector("#mobileFab");
+  const mobileAddMenu=document.querySelector("#mobileAddMenu");
+  if(mobileFab&&mobileAddMenu){
+    mobileFab.onclick=()=>{mobileAddMenu.hidden=!mobileAddMenu.hidden;};
+    document.querySelectorAll("[data-quick-add]").forEach(b=>{
+      b.onclick=()=>{
+        const kind=b.dataset.quickAdd;
+        mobileAddMenu.hidden=true;
+        const destination=kind==="Study"?"Study planner":kind==="Exam"?"Tests & exams":"Calendar";
+        go(destination);
+        const addButton=document.querySelector(`[data-add="${kind}"]`);
+        if(addButton)addButton.click();
+      };
+    });
+  }
+}
+
+function wireForm(){
+  document.querySelector("#cancel").onclick=render;
+
+  document.querySelector("#create").onsubmit=e=>{
+    e.preventDefault();
+
+    let o=Object.fromEntries(new FormData(e.target));
+    let kind=o.kind.toLowerCase()+"s";
+
+    delete o.kind;
+    o.id=uuid();
+
+    if(kind==="studys")kind="tasks";
+    if(!data[kind])return;
+
+    if(kind==="tasks")o.done=false;
+
+    data[kind].push(o);
+    save();
+    render();
+  };
+}
+
+function exportData(){
+  let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="life-os-backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(e){
+  let f=e.target.files[0];
+  if(!f)return;
+
+  let r=new FileReader();
+
+  r.onload=()=>{
+    try{
+      let x=JSON.parse(r.result);
+      if(!x.tasks||!x.exams||!x.events)throw Error();
+
+      data=x;
+      normalizeIds();
+      save();
+      render();
+      alert("Backup imported and queued for cloud sync.");
+    }catch{
+      alert("That backup file is invalid.");
+    }
+  };
+
+  r.readAsText(f);
+}
+
+document.querySelector("#export").onclick=exportData;
+
+document.querySelector("#today").textContent=
+  new Date().toLocaleDateString(undefined,{
+    weekday:"short",
+    day:"numeric",
+    month:"short"
+  });
+
+document.querySelector("#logout").onclick=async()=>{
+  await supabaseClient.auth.signOut();
+  currentUser=null;
+  showAuth("You have been signed out.");
+};
+
+(async()=>{
+  const {data:{session}}=await supabaseClient.auth.getSession();
+
+  if(session){
+    await startSession(session);
+  }else{
+    showAuth();
+    setStatus("Not signed in");
+  }
+
+  supabaseClient.auth.onAuthStateChange((_event,session)=>{
+    if(session&&!currentUser){
+      startSession(session);
+    }else if(!session&&currentUser){
+      currentUser=null;
+      showAuth("You have been signed out.");
+    }
+  });
+})();
+
+window.addEventListener("offline",()=>setStatus("Offline · changes saved on this device"));
+window.addEventListener("online",()=>{
+  if(currentUser&&localStorage.getItem(pendingSyncKey()))pushCloudData();
+});
+
+if("serviceWorker"in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
